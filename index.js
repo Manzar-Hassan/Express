@@ -1,7 +1,7 @@
 import express from "express";
-import { MongoClient } from "mongodb";
 
 const app = express();
+const PORT = 4000;
 
 const data = [
   {
@@ -84,30 +84,19 @@ const data = [
   },
 ];
 
-const MONGO_URL = "mongodb://127.0.0.1";
-
-const createConnection = async () => {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-  console.log("mongo is connected");
-};
-
-const client = createConnection();
-
-app.get("/movies/:id", function (req, res) {
-  const { id } = req.params;
-
-  const movie = client.db("movies").collection("movies").findOne({ id: id });
-
-  movie ? res.send(movie) : res.status(404).send({ msg: "movie not found" });
+app.get("/", function (request, response) {
+  response.send("<h1>Hello world!!</h1>");
 });
 
-app.get("/", function (req, res) {
-  res.send("Hello World");
+app.get("/movies", (request, response) => {
+  response.send(data);
 });
 
-app.get("/movies", function (req, res) {
-  res.send(data);
+app.get("/movies/:id", (request, response) => {
+  const { id } = request.params;
+
+  const movie = data.find((movie) => movie.id === id);
+  response.send(movie);
 });
 
-app.listen(3000);
+app.listen(PORT, () => console.log(`App started in ${PORT}`));
