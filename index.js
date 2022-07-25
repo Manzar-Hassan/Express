@@ -1,4 +1,6 @@
-const express = require("express");
+import express from "express";
+import { MongoClient } from "mongodb";
+
 const app = express();
 
 const data = [
@@ -81,6 +83,24 @@ const data = [
     trailer: "https://www.youtube.com/embed/NgsQ8mVkN8w",
   },
 ];
+
+const MONGO_URL = "mongodb://127.0.0.1";
+
+const createConnection = async () => {
+  const client = new MongoClient(MONGO_URL);
+  await client.connect();
+  console.log("mongo is connected");
+};
+
+const client = createConnection();
+
+app.get("/movies/:id", function (req, res) {
+  const { id } = req.params;
+
+  const movie = client.db("movies").collection("movies").findOne({ id: id });
+
+  movie ? res.send(movie) : res.status(404).send({ msg: "movie not found" });
+});
 
 app.get("/", function (req, res) {
   res.send("Hello World");
