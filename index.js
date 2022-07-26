@@ -14,7 +14,7 @@ const PORT = process.env.PORT;
 const MONGO_URL = process.env.MONGO_URL;
 
 app.use(express.json());
-app.use(cors())
+app.use(cors()) //cross origin request sharing
 
 async function createConnection() {
   const client = new MongoClient(MONGO_URL);
