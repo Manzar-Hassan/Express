@@ -1,10 +1,16 @@
 import express from "express";
 import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+//console.log(process.env) //env -> environment variables
 
 const app = express();
 const PORT = 4000;
 // const MONGO_URL = "mongodb://localhost";  //node 16 and below
-const MONGO_URL = "mongodb://127.0.0.1";
+// const MONGO_URL = "mongodb://127.0.0.1";
+const MONGO_URL = process.env.MONGO_URL;
 
 app.use(express.json());
 
@@ -26,7 +32,10 @@ app.post("/movies", async (request, response) => {
   //db.movies.find({})
   const data = request.body;
   const result = await client.db("B36WD").collection("movies").insertMany(data);
-  response.send(result);
+
+  result.insertedCount > 0
+    ? response.send({ msg: "movies created sucessfully!!" })
+    : response.status(404).send({ msg: "movie not found" });
 });
 
 app.get("/movies", async (request, response) => {
@@ -66,8 +75,11 @@ app.put("/movies/:id", async (request, response) => {
   const result = await client
     .db("B36WD")
     .collection("movies")
-    .updateOne({ id: id }, {$set: data});
-  response.send(result);
+    .updateOne({ id: id }, { $set: data });
+
+  result.modifiedCount > 0
+    ? response.send({ msg: "movie updated sucessfully!!" })
+    : response.status(404).send({ msg: "movie not found" });
 });
 
 app.delete("/movies/:id", async (request, response) => {
@@ -79,8 +91,8 @@ app.delete("/movies/:id", async (request, response) => {
     .collection("movies")
     .deleteOne({ id: id });
 
-  movie
-    ? response.send(movie)
+  movie.deletedCount > 0
+    ? response.send({ msg: "movie deleted sucessfully!!" })
     : response.status(404).send({ msg: "movie not found" });
 });
 
