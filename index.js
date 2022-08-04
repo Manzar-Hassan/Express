@@ -1,7 +1,8 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
-import cors from "cors"
+import cors from "cors";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const PORT = process.env.PORT;
 const MONGO_URL = process.env.MONGO_URL;
 
 app.use(express.json());
-app.use(cors()) //cross origin request sharing
+app.use(cors()); //cross origin request sharing
 
 async function createConnection() {
   const client = new MongoClient(MONGO_URL);
@@ -97,5 +98,26 @@ app.delete("/movies/:id", async (request, response) => {
     ? response.send({ msg: "movie deleted sucessfully!!" })
     : response.status(404).send({ msg: "movie not found" });
 });
+
+app.post("/movies", async (request, response) => {
+  //db.movies.find({})
+  const data = request.body;
+  const result = await client.db("B36WD").collection("users").insertOne(data);
+
+  result.insertedCount > 0
+    ? response.send({ msg: "account created sucessfully!!" })
+    : response.status(404).send({ msg: "sorry!! please try later" });
+});
+
+async function getHashedPassword(password) {
+  const NO_OF_ROUNDS = 10;
+
+  const salt = await bcrypt.genSalt(NO_OF_ROUNDS);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  console.log(salt);
+  console.log(hashedPassword);
+}
+
+getHashedPassword("lol");
 
 app.listen(PORT, () => console.log(`App started in ${PORT}`));
